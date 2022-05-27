@@ -1,0 +1,113 @@
+        -:    0:Source:./queens.c
+        -:    0:Graph:test_queens.gcno
+        -:    0:Data:test_queens.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "queens.h"
+        -:    2:#include <assert.h>
+        -:    3:#include <stdlib.h>
+        -:    4:
+        -:    5:/* check_same_diagonal: returns true iff queens (c0,r0) and (c1,r1) are in the
+        -:    6: * same diagonal. */
+function check_same_diagonal called 86 returned 100% blocks executed 100%
+        -:    7:static bool check_same_diagonal(const int c0, const int r0,
+        -:    8:                                const int c1, const int r1) {
+       86:    9:	    const int x = abs(c0 - c1);
+       86:   10:        const int y = abs(r0 - r1);
+       86:   11:        return y==x;
+        -:   12:}
+        -:   13:
+        -:   14:/* check_column_ok: returns true iff the placement (c,r) is ok with all queens
+        -:   15: * to the left of column c already placed in queen_row.
+        -:   16: * precondition: queen_row must be at least of size c. */
+function check_column_ok called 46 returned 100% blocks executed 100%
+        -:   17:static bool check_column_ok(const int c, const int r, const int queen_row[]) {
+       46:   18:  bool a = true;
+      252:   19:  for(int j=0 ; j < c; j++)
+branch  0 taken 63%
+branch  1 taken 37%
+       80:   20:	a = a & !check_same_diagonal(c, r, j, queen_row[j]);
+       46:   21:  return a;
+        -:   22:  //assert(false);
+        -:   23:}
+        -:   24:
+        -:   25:/* find_available: returns an available row higher than min.
+        -:   26: * If no row is found returns -1 */
+function find_available called 54 returned 100% blocks executed 100%
+        -:   27:static int find_available(const int min, const int n, const bool available[]) {
+      302:   28:  for(int i = min; i < n; i++)
+branch  0 taken 91%
+branch  1 taken 9%
+      234:   29:	if(available[i])
+branch  0 taken 29%
+branch  1 taken 71%
+       40:   30:	 return i;
+       14:   31:  return -1;
+       54:   32:}
+        -:   33:
+        -:   34:/* _find_solution: tries to find a solution to the n-queens problems by filling
+        -:   35: * columns from c to n.
+        -:   36: * queen_row contains the row positions for columns lower than c.
+        -:   37: * available contains the available rows to fill columns higher or equal to c.
+        -:   38: */
+function _find_solution called 24 returned 100% blocks executed 100%
+        -:   39:static bool _find_solution(const int n, const int c, int queen_row[],
+        -:   40:                           bool available[]) {
+       24:   41:    if(c == n)
+branch  0 taken 8%
+branch  1 taken 92%
+        2:   42:		return true;
+        -:   43:
+        -:   44:	int k;
+        -:   45:	int _q;
+       22:   46:	bool _kv[n];
+        -:   47:	
+      206:   48:	for(int i = 0; i < n; i++)
+branch  0 taken 79%
+branch  1 taken 21%
+       81:   49:		_kv[i] = available[i];
+        -:   50:  
+       51:   51:	for(;;){
+       51:   52:		k = find_available(0,n,_kv);
+       51:   53:		if(k == -1)
+branch  0 taken 25%
+branch  1 taken 75%
+       13:   54:			return false;
+       38:   55:		_kv[k] = false;
+        -:   56:
+       38:   57:		if(check_column_ok(c,k,queen_row)){
+branch  0 taken 53%
+branch  1 taken 47%
+       20:   58:			_q = queen_row[c];
+       20:   59:			queen_row[c] = k;
+       20:   60:			available[k] = false;
+        -:   61:			
+       20:   62:			if(_find_solution(n,c+1,queen_row,available))
+branch  0 taken 45%
+branch  1 taken 55%
+        9:   63:				break;
+       11:   64:			available[k] = true;
+       11:   65:			queen_row[c] = _q;
+       11:   66:		}
+        -:   67:	}
+        9:   68:	return true;
+        -:   69:  //assert(false);
+       46:   70:}
+        -:   71:
+        -:   72:/* find_solution: returns true iff a n-queens solution is found.
+        -:   73: * queens_row is an int array of size n that will be
+        -:   74: * overwritten with the solution.
+        -:   75: *
+        -:   76: * if a solution is found, queens_row[c] will contain the row number for queen
+        -:   77: * at column c.
+        -:   78: * */
+function find_solution called 4 returned 100% blocks executed 100%
+        -:   79:bool find_solution(const int n, int queen_row[]) {
+        4:   80:  bool available[n];
+       36:   81:  for (int i = 0; i < n; i++) {
+branch  0 taken 78%
+branch  1 taken 22%
+       14:   82:    available[i] = true;
+       14:   83:  }
+        4:   84:  return _find_solution(n, 0, queen_row, available);
+        4:   85:}
